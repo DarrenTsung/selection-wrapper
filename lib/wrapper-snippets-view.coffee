@@ -31,6 +31,9 @@ class WrapperSnippetsView extends SelectListViewHelper
     
   insertWrapperSnippetByName: (name) ->
     editor = atom.workspace.getActiveTextEditor()
+    
+    startCheckpoint = editor.createCheckpoint()
+    
     wrapperSnippets = @wrapperSnippetsManager.getWrapperSnippetsForCurrentScope()
     snippet = wrapperSnippets[name]
     
@@ -48,18 +51,20 @@ class WrapperSnippetsView extends SelectListViewHelper
         #{tabText}{#{indentationLevel}}         # tab text exactly indentationLevel times
         \s?                                     # a single space character if it exists (???)
         ///gm
-        
+      
       selectedText = selection.getText().trimRight().replace(indentationReplacePattern, tabText)
       textToInsert = (snippet.body).replace(/\${selection}/, selectedText)
       
       selection.insertText(textToInsert + "\n", autoIndent: true, select: true);
       atom.commands.dispatch(atom.views.getView(editor), "vim-mode:activate-insert-mode")
       
-      editor.scanInBufferRange /\${cursor}/, selection.getBufferRange(), ({range, stop, replace}) -> 
+      editor.scanInBufferRange /\${cursor}/, selection.getBufferRange(), ({range, stop}) -> 
         editor.setCursorBufferPosition(range.start)
-        replace("")
+        editor.setSelectedBufferRange(range)
         stop()
-    
+        
+      editor.groupChangesSinceCheckpoint(startCheckpoint)
+      
   confirmed: (obj) ->
     @insertWrapperSnippetByName(obj.simpleText)
     super(obj)

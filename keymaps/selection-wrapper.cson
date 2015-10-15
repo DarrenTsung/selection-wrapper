@@ -8,4 +8,4 @@
 # For more detailed documentation see
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-workspace':
-  'ctrl-alt-o': 'selection-wrapper:toggle'
+  'ctrl-cmd-r': 'selection-wrapper:display-wrapper-snippets-for-selection'
